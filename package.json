@@ -1,0 +1,28 @@
+{
+  "name": "kucoin-sniper",
+  "version": "0.1.0",
+  "description": "A small script that 'snipes' new coin listings on the cryptocurrency exchange KuCoin.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yamato79/kucoin-sniper.git"
+  },
+  "keywords": [
+    "Node",
+    "JavaScript"
+  ],
+  "author": "Jonathan Tordesllas <yamato.takato@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yamato79/kucoin-sniper/issues"
+  },
+  "homepage": "https://github.com/yamato79/kucoin-sniper#readme",
+  "dependencies": {
+    "kucoin-node-sdk": "^1.0.4",
+    "promptly": "^3.2.0"
+  }
+}
