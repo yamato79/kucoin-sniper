@@ -41,15 +41,29 @@ const createBuyOrder = (market = "", funds = 0) => {
 }
 
 /**
+ * Get the order information
+ * 
+ * @param { String } orderId
+ */
+const getOrderInformation = (orderId = null) => {
+    if (!orderId) {
+        return;
+    }
+
+    return api.rest.Trade.Orders.getOrderByID(orderId);
+}
+
+/**
  * Check if the market is available.
  */
-const pollMarketExistence = (baseCurrency = null, quoteCurrency = null, funds = null, limit = 10, delay = 100) => {
+const pollMarketExistence = async (baseCurrency = null, quoteCurrency = null, funds = null, limit = 10, delay = 100) => {
     if (!baseCurrency || !quoteCurrency || !funds) {
         return;
     };
 
     const market = `${baseCurrency}-${quoteCurrency}`;
     const now = new Date();
+    console.log("======================================");
     console.log(`[${now}] [${limit}] Polling: ${market}`);
 
     if (limit < 1) {
@@ -57,23 +71,34 @@ const pollMarketExistence = (baseCurrency = null, quoteCurrency = null, funds = 
         return;
     }
 
-    api.rest.Market.Symbols.getTicker(market)
+    await api.rest.Market.Symbols.getTicker(market)
         .then((response) => {
             if (!response.data) {
+                console.log("No response data found.");
+
                 setTimeout(() => {
                     pollMarketExistence(baseCurrency, quoteCurrency, funds, (limit - 1));
                 }, delay);
             } else {
                 createBuyOrder(market, funds)
-                    .then((response) => {
-                        if (response.code != "200004") {
-                            pollMarketExistence(baseCurrency, quoteCurrency, funds, (limit - 1));
+                    .then(async (response) => {
+                        if (["400600"].includes(response.code)) {
+                            setTimeout(() => {
+                                pollMarketExistence(baseCurrency, quoteCurrency, funds, (limit - 1));
+                            }, delay);
                         }
 
                         console.log(response);
+
+                        if (response && response.data && response.data.orderId) {
+                            const orderInformation = await getOrderInformation(response.data.orderId);
+                            console.log(orderInformation);
+                        }
                     })
                     .catch((error) => {
-                        pollMarketExistence(baseCurrency, quoteCurrency, funds, (limit - 1));
+                        setTimeout(() => {
+                            pollMarketExistence(baseCurrency, quoteCurrency, funds, (limit - 1));
+                        }, delay);
                         console.error(error);
                     });
             }
